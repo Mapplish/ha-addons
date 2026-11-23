@@ -1,4 +1,6 @@
 # Changelog
+## 1.3.2
+- Lange Beschreibungen (RSC-Textreferenzen wie "$16a") werden aufgeloest
 ## 1.3.1
 - Option `secret_path`, um die bestehende Connector-URL beim Umzug zu behalten
 - Add-on liegt jetzt im Repository Mapplish/ha-addons

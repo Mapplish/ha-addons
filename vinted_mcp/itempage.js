@@ -65,7 +65,20 @@ function __vmcpParseItemPage(html, id, base) {
   if (attrs.upload_date) extra.push("Hochgeladen: vor " + attrs.upload_date);
   if (blocks.ask_seller && blocks.ask_seller.is_reserved) extra.push("RESERVIERT");
   if (lastOnline) extra.push("Verkäufer " + lastOnline);
-  const description = ((blocks.description && blocks.description.description) || "") +
+  // Lange Texte stehen im RSC-Payload als Referenz ("$16a") auf eine Textzeile "16a:T<hexlaenge>,<text>"
+  const resolveRef = (v) => {
+    const mm = /^\$([0-9a-f]+)$/.exec(String(v || ""));
+    if (!mm) return v;
+    const key = mm[1] + ":T";
+    let at = d.indexOf("\n" + key);
+    at = at >= 0 ? at + 1 : (d.startsWith(key) ? 0 : -1);
+    if (at < 0) return "";
+    const comma = d.indexOf(",", at);
+    const len = parseInt(d.slice(at + key.length, comma), 16);
+    if (!(len >= 0)) return "";
+    return Buffer.from(d.slice(comma + 1, comma + 1 + len + 16), "utf8").subarray(0, len).toString("utf8");
+  };
+  const description = (resolveRef(blocks.description && blocks.description.description) || "") +
     (extra.length ? "\n\n[Details: " + extra.join(" · ") + "]" : "");
 
   return {
