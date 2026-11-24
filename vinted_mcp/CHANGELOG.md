@@ -1,4 +1,6 @@
 # Changelog
+## 1.3.3
+- Sicherheit: Startseite "/" gibt den geheimen MCP-Pfad nicht mehr preis (404)
 ## 1.3.2
 - Lange Beschreibungen (RSC-Textreferenzen wie "$16a") werden aufgeloest
 ## 1.3.1

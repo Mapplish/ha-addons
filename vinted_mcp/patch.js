@@ -166,5 +166,12 @@ replace(
   "get_item ueber Artikelseite"
 );
 
+// 9) Sicherheit: Die Startseite "/" verriet bisher den geheimen MCP-Pfad -> jetzt nur 404
+replace(
+  '    if (url.pathname === "/") {\n      res.statusCode = 200;',
+  '    if (false && url.pathname === "/") {\n      res.statusCode = 200;',
+  "Startseite verbirgt geheimen Pfad"
+);
+
 fs.writeFileSync(file, src);
 console.log("[patch] fertig");
