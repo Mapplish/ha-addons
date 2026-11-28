@@ -39,4 +39,25 @@ echo "=================================================================="
 export VINTED_MCP_TRANSPORT=http VINTED_MCP_HOST=127.0.0.1 VINTED_MCP_PORT=3001
 export VINTED_MCP_PATH="/$SECRET" VINTED_MCP_ENABLE_LEGACY_SSE=false VINTED_AUTH_MODE=http
 export VINTED_MAX_CONCURRENCY=2 VINTED_REQUEST_DELAY_MS=1500
-exec node /app/node_modules/@andrijdavid/vinted-mcp/dist/bundle.js
+
+# Waechter: startet tailscaled bzw. den Funnel neu, falls sie wegfallen; prueft den MCP-Server lokal
+(
+  while true; do
+    sleep 60
+    if ! pgrep -x tailscaled >/dev/null 2>&1; then
+      echo "[vinted] $(date '+%F %T') tailscaled war beendet - starte neu"
+      tailscaled --tun=userspace-networking --statedir=/data/tailscale --socket=/tmp/tailscaled.sock >>/tmp/tailscaled.log 2>&1 &
+      sleep 5; $TS up --hostname="$HOSTNAME_TS" >/dev/null 2>&1; $TS funnel --bg 3001 >/dev/null 2>&1
+    elif ! $TS funnel status 2>/dev/null | grep -q "3001"; then
+      echo "[vinted] $(date '+%F %T') Funnel fehlte - richte neu ein"
+      $TS funnel --bg 3001 >/dev/null 2>&1
+    fi
+  done
+) &
+
+# MCP-Server: bei Absturz automatisch neu starten
+while true; do
+  node /app/node_modules/@andrijdavid/vinted-mcp/dist/bundle.js
+  echo "[vinted] $(date '+%F %T') MCP-Server beendet (Code $?) - Neustart in 5 s"
+  sleep 5
+done

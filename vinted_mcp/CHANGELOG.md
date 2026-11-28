@@ -1,4 +1,6 @@
 # Changelog
+## 1.3.4
+- Stabilitaet: MCP-Server startet nach Absturz automatisch neu; Waechter prueft alle 60 s tailscaled und Funnel und stellt sie wieder her
 ## 1.3.3
 - Sicherheit: Startseite "/" gibt den geheimen MCP-Pfad nicht mehr preis (404)
 ## 1.3.2
